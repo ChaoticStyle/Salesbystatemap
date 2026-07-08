@@ -9,9 +9,10 @@
  *   npx tsx scripts/seed-historical.ts                # dry run, prints summary only
  *   npx tsx scripts/seed-historical.ts --commit        # also writes to Supabase
  */
-import 'dotenv/config';
-import fs from 'node:fs';
+import { config } from 'dotenv';
 import path from 'node:path';
+import fs from 'node:fs';
+config({ path: path.resolve(__dirname, '../.env.local') });
 import { createClient } from '@supabase/supabase-js';
 import { parseWorkbookBuffer } from '../src/lib/excel/parseWorkbook';
 import { mapRawRowToDeal } from '../src/lib/excel/columnMapping';

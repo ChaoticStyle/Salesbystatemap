@@ -10,8 +10,8 @@ import type { StateGeoFeature } from './types';
 
 const INITIAL_VIEW_STATE = {
   longitude: -95,
-  latitude: 40,
-  zoom: 3.2,
+  latitude: 38,
+  zoom: 2.9,
   pitch: 0,
   bearing: 0,
 };
@@ -41,6 +41,9 @@ export function DeckMap({ geoData, counts, onStateClick }: DeckMapProps) {
           filled: true,
           stroked: true,
           getFillColor: (f) => colorScale(countByCode.get(f.properties.code) ?? 0),
+          // geoData's reference never changes, so deck.gl won't know to recompute
+          // getFillColor's GPU attributes when `counts` updates unless told to here.
+          updateTriggers: { getFillColor: counts },
           getLineColor: [40, 40, 40],
           lineWidthMinPixels: 1,
           pickable: true,
