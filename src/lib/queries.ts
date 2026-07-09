@@ -1,5 +1,4 @@
 import { createClient } from '@/lib/supabase/client';
-import type { ViewKey } from '@/types/domain';
 
 export interface StateCountRow {
   state_code: string;
@@ -18,9 +17,10 @@ function periodMonthString(year: number, month: number): string {
   return `${year}-${String(month).padStart(2, '0')}-01`;
 }
 
-export async function fetchStateCounts(viewKey: ViewKey, period: PeriodSelection): Promise<StateCountRow[]> {
+/** Fetches state counts for every view at once, keyed by view_key -- backs both the single-map view (by indexing in) and the gallery/multi-window mode. */
+export async function fetchAllViewCounts(period: PeriodSelection): Promise<Record<string, StateCountRow[]>> {
   const supabase = createClient();
-  let query = supabase.from('state_view_month_counts').select('state_code, deal_count, period_month').eq('view_key', viewKey);
+  let query = supabase.from('state_view_month_counts').select('view_key, state_code, deal_count, period_month');
 
   if (period.mode === 'single') {
     query = query.eq('period_month', periodMonthString(period.year, period.month));
@@ -31,15 +31,18 @@ export async function fetchStateCounts(viewKey: ViewKey, period: PeriodSelection
   const { data, error } = await query;
   if (error) throw error;
 
-  if (period.mode === 'single') {
-    return (data ?? []).map((r) => ({ state_code: r.state_code, deal_count: r.deal_count }));
+  const byView = new Map<string, Map<string, number>>();
+  for (const row of data ?? []) {
+    const stateMap = byView.get(row.view_key) ?? new Map<string, number>();
+    stateMap.set(row.state_code, (stateMap.get(row.state_code) ?? 0) + row.deal_count);
+    byView.set(row.view_key, stateMap);
   }
 
-  const totals = new Map<string, number>();
-  for (const row of data ?? []) {
-    totals.set(row.state_code, (totals.get(row.state_code) ?? 0) + row.deal_count);
+  const result: Record<string, StateCountRow[]> = {};
+  for (const [viewKey, stateMap] of byView.entries()) {
+    result[viewKey] = Array.from(stateMap.entries()).map(([state_code, deal_count]) => ({ state_code, deal_count }));
   }
-  return Array.from(totals.entries()).map(([state_code, deal_count]) => ({ state_code, deal_count }));
+  return result;
 }
 
 export interface AvailablePeriods {

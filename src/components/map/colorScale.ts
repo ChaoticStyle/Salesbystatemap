@@ -21,3 +21,12 @@ function parseRgb(css: string): [number, number, number] {
   if (!m || m.length < 3) return [0, 0, 0];
   return [Math.round(Number(m[0])), Math.round(Number(m[1])), Math.round(Number(m[2]))];
 }
+
+/** Perceptual luminance (0-255); used to decide whether a label needs black or white text to stay readable against its fill color. */
+export function luminance([r, g, b]: [number, number, number]): number {
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+}
+
+export function labelColorForFill(fill: [number, number, number]): [number, number, number, number] {
+  return luminance(fill) > 150 ? [0, 0, 0, 255] : [255, 255, 255, 255];
+}
