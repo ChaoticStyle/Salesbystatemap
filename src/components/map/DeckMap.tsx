@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import DeckGL from '@deck.gl/react';
-import { GeoJsonLayer } from '@deck.gl/layers';
+import { GeoJsonLayer, TextLayer, LineLayer } from '@deck.gl/layers';
 import { MapView } from '@deck.gl/core';
+import { geoCentroid } from 'd3-geo';
 import { buildColorScale, PAGE_BACKGROUND_COLOR } from './colorScale';
+import { SMALL_REGION_LABEL_POSITIONS } from './smallRegionOffsets';
 import type { StateCountRow } from '@/lib/queries';
 import type { StateGeoFeature } from './types';
 
@@ -22,6 +24,18 @@ interface DeckMapProps {
   onStateClick?: (code: string) => void;
 }
 
+interface LabelPoint {
+  code: string;
+  position: [number, number];
+  text: string;
+}
+
+interface LeaderLine {
+  code: string;
+  source: [number, number];
+  target: [number, number];
+}
+
 export function DeckMap({ geoData, counts, onStateClick }: DeckMapProps) {
   const [hoverInfo, setHoverInfo] = useState<{ x: number; y: number; code: string; name: string; count: number } | null>(null);
 
@@ -32,6 +46,31 @@ export function DeckMap({ geoData, counts, onStateClick }: DeckMapProps) {
   }, [counts]);
 
   const colorScale = useMemo(() => buildColorScale(Array.from(countByCode.values())), [countByCode]);
+
+  const centroids = useMemo(() => {
+    const m = new Map<string, [number, number]>();
+    if (!geoData) return m;
+    for (const f of geoData.features) {
+      m.set(f.properties.code, geoCentroid(f.geometry as never) as [number, number]);
+    }
+    return m;
+  }, [geoData]);
+
+  const { labelPoints, leaderLines } = useMemo(() => {
+    const points: LabelPoint[] = [];
+    const lines: LeaderLine[] = [];
+    for (const [code, centroid] of centroids.entries()) {
+      const count = countByCode.get(code) ?? 0;
+      if (count <= 0) continue;
+      const offsetPosition = SMALL_REGION_LABEL_POSITIONS[code];
+      const position = offsetPosition ?? centroid;
+      points.push({ code, position, text: String(count) });
+      if (offsetPosition) {
+        lines.push({ code, source: centroid, target: offsetPosition });
+      }
+    }
+    return { labelPoints: points, leaderLines: lines };
+  }, [centroids, countByCode]);
 
   const layers = geoData
     ? [
@@ -67,6 +106,26 @@ export function DeckMap({ geoData, counts, onStateClick }: DeckMapProps) {
               setHoverInfo(null);
             }
           },
+        }),
+        new LineLayer<LeaderLine>({
+          id: 'leader-lines',
+          data: leaderLines,
+          getSourcePosition: (d) => d.source,
+          getTargetPosition: (d) => d.target,
+          getColor: [255, 255, 255, 160],
+          getWidth: 1,
+        }),
+        new TextLayer<LabelPoint>({
+          id: 'state-labels',
+          data: labelPoints,
+          getPosition: (d) => d.position,
+          getText: (d) => d.text,
+          getSize: 13,
+          getColor: [255, 255, 255, 255],
+          getPixelOffset: [0, 0],
+          fontFamily: '"Segoe UI", system-ui, sans-serif',
+          fontWeight: 700,
+          background: false,
         }),
       ]
     : [];

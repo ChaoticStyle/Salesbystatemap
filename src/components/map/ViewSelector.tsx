@@ -13,29 +13,45 @@ export function ViewSelector({ value, onChange }: ViewSelectorProps) {
   const dealer = VIEW_DEFS.filter((v) => v.group === 'dealer');
 
   return (
-    <div className="flex flex-wrap gap-4 text-sm">
-      <div className="flex flex-wrap gap-1">
+    <div className="flex flex-col gap-4">
+      <Section title="Overall">
         {overall.map((v) => (
-          <button
-            key={v.key}
-            onClick={() => onChange(v.key)}
-            className={`rounded px-2 py-1 ${value === v.key ? 'bg-blue-600 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
-          >
+          <OptionButton key={v.key} active={value === v.key} onClick={() => onChange(v.key)}>
             {v.label}
-          </button>
+          </OptionButton>
         ))}
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {dealer.map((v) => (
-          <button
-            key={v.key}
-            onClick={() => onChange(v.key)}
-            className={`rounded px-2 py-1 ${value === v.key ? 'bg-blue-600 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
-          >
-            {v.label}
-          </button>
-        ))}
-      </div>
+      </Section>
+      <Section title="By Dealer">
+        <div className="grid grid-cols-2 gap-1.5">
+          {dealer.map((v) => (
+            <OptionButton key={v.key} active={value === v.key} onClick={() => onChange(v.key)}>
+              {v.label}
+            </OptionButton>
+          ))}
+        </div>
+      </Section>
     </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="text-xs font-semibold tracking-wide text-white/50 uppercase">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function OptionButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
+        active ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/80 hover:bg-white/15'
+      }`}
+    >
+      {children}
+    </button>
   );
 }

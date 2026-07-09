@@ -15,42 +15,46 @@ export function PeriodSelector({ value, onChange, years, monthsByYear }: PeriodS
   const availableMonths = monthsByYear[value.year] ?? [];
 
   return (
-    <div className="flex flex-wrap items-center gap-3 text-sm text-white">
-      <div className="flex overflow-hidden rounded">
+    <div className="flex flex-col gap-2">
+      <div className="text-xs font-semibold tracking-wide text-white/50 uppercase">Period</div>
+
+      <div className="flex overflow-hidden rounded-md text-sm">
         {(['ytd', 'single'] as PeriodMode[]).map((mode) => (
           <button
             key={mode}
             onClick={() => onChange({ ...value, mode })}
-            className={`px-2 py-1 ${value.mode === mode ? 'bg-blue-600' : 'bg-white/10 hover:bg-white/20'}`}
+            className={`flex-1 px-2 py-1.5 ${value.mode === mode ? 'bg-blue-600 text-white' : 'bg-white/5 text-white/80 hover:bg-white/15'}`}
           >
-            {mode === 'ytd' ? 'Thru month (YTD)' : 'Single month'}
+            {mode === 'ytd' ? 'Thru month' : 'Single month'}
           </button>
         ))}
       </div>
 
-      <select
-        value={value.year}
-        onChange={(e) => onChange({ ...value, year: Number(e.target.value) })}
-        className="rounded bg-white/10 px-2 py-1"
-      >
-        {years.map((y) => (
-          <option key={y} value={y} className="text-black">
-            {y}
-          </option>
-        ))}
-      </select>
+      <div className="flex gap-2">
+        <select
+          value={value.year}
+          onChange={(e) => onChange({ ...value, year: Number(e.target.value) })}
+          className="flex-1 rounded-md bg-white/5 px-2 py-1.5 text-sm text-white"
+        >
+          {years.map((y) => (
+            <option key={y} value={y} className="text-black">
+              {y}
+            </option>
+          ))}
+        </select>
 
-      <select
-        value={value.month}
-        onChange={(e) => onChange({ ...value, month: Number(e.target.value) })}
-        className="rounded bg-white/10 px-2 py-1"
-      >
-        {availableMonths.map((m) => (
-          <option key={m} value={m} className="text-black">
-            {MONTH_LABELS[m - 1]}
-          </option>
-        ))}
-      </select>
+        <select
+          value={value.month}
+          onChange={(e) => onChange({ ...value, month: Number(e.target.value) })}
+          className="flex-1 rounded-md bg-white/5 px-2 py-1.5 text-sm text-white"
+        >
+          {availableMonths.map((m) => (
+            <option key={m} value={m} className="text-black">
+              {MONTH_LABELS[m - 1]}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

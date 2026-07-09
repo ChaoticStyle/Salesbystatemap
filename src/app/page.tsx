@@ -40,18 +40,19 @@ export default function Home() {
   const total = counts.reduce((sum, r) => sum + r.deal_count, 0);
 
   return (
-    <div className="flex h-screen flex-col bg-[#595959]">
-      <header className="flex flex-col gap-3 p-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-white">Sales by State</h1>
-          <div className="text-lg font-bold text-white">Total: {total}</div>
-        </div>
+    <div className="flex h-screen bg-[#595959]">
+      <aside className="flex w-72 shrink-0 flex-col gap-5 overflow-y-auto bg-black/30 p-4">
+        <h1 className="text-xl font-bold text-white">Sales by State</h1>
         <ViewSelector value={viewKey} onChange={setViewKey} />
         <PeriodSelector value={period} onChange={setPeriod} years={periods.years} monthsByYear={periods.monthsByYear} />
         {error && <div className="rounded bg-red-900/60 px-3 py-2 text-sm text-red-100">{error}</div>}
-      </header>
+      </aside>
       <div className="relative flex-1">
         <DeckMap geoData={geoData} counts={counts} />
+        <div className="pointer-events-none absolute top-1/2 right-10 -translate-y-1/2 text-right">
+          <div className="text-sm font-semibold tracking-wide text-white/70 uppercase">Total</div>
+          <div className="text-7xl font-bold text-white drop-shadow-lg">{total}</div>
+        </div>
       </div>
     </div>
   );
