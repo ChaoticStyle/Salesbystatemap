@@ -47,6 +47,7 @@ export function DeckMap({ idPrefix = 'main', geoData, counts, onStateClick, init
         controller={interactive}
         views={new MapView({ repeat: false })}
         layers={layers}
+        widgets={[]}
         onViewStateChange={({ viewState }) => setZoom((viewState as { zoom: number }).zoom)}
       />
       {hoverInfo && (

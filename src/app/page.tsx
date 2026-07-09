@@ -91,6 +91,14 @@ export default function Home() {
           {viewMode === 'single' && <ViewSelector value={viewKey} onChange={setViewKey} />}
           <PeriodSelector value={period} onChange={setPeriod} years={periods.years} monthsByYear={periods.monthsByYear} />
           {error && <div className="rounded bg-red-900/60 px-3 py-2 text-sm text-red-100">{error}</div>}
+
+          <a
+            href="/admin"
+            className="mt-auto flex items-center justify-between rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/70 hover:bg-white/15 hover:text-white"
+          >
+            <span>Admin</span>
+            <span className="text-xs text-white/40">Upload monthly data &rarr;</span>
+          </a>
         </aside>
       </div>
 
