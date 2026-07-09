@@ -24,7 +24,7 @@ function labelSizeForZoom(zoom: number): number {
 // on top of the normal centroid position, in every view.
 const LABEL_PIXEL_OFFSETS: Record<string, [number, number]> = {
   LA: [0, 15],
-  FL: [-15, 0],
+  FL: [15, 0],
 };
 
 interface LabelPoint {
