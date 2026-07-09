@@ -11,7 +11,7 @@ import type { StateGeoFeature } from './types';
 
 const DEFAULT_VIEW_STATE = {
   longitude: -95,
-  latitude: 38,
+  latitude: 30.5,
   zoom: DEFAULT_MAP_ZOOM,
   pitch: 0,
   bearing: 0,

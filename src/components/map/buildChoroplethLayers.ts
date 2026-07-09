@@ -11,7 +11,7 @@ const BASE_LABEL_SIZE = 13;
 // enlarges) but are clamped so they never become illegibly small when
 // zoomed out or comically large when zoomed in close.
 const MIN_LABEL_SIZE = 10;
-const MAX_LABEL_SIZE = 32;
+const MAX_LABEL_SIZE = 22;
 
 function labelSizeForZoom(zoom: number): number {
   const scale = Math.pow(2, zoom - DEFAULT_MAP_ZOOM);
