@@ -58,8 +58,10 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-[#595959]">
-      {sidebarOpen && (
-        <aside className="flex w-72 shrink-0 flex-col gap-5 overflow-y-auto bg-black/30 p-4">
+      <div
+        className={`shrink-0 overflow-hidden bg-black/30 transition-[width] duration-300 ease-in-out ${sidebarOpen ? 'w-72' : 'w-0'}`}
+      >
+        <aside className="flex h-full w-72 flex-col gap-5 overflow-y-auto p-4">
           <div className="flex items-center justify-between">
             <h1 className="text-xl font-bold text-white">Sales by State</h1>
             <button
@@ -90,17 +92,17 @@ export default function Home() {
           <PeriodSelector value={period} onChange={setPeriod} years={periods.years} monthsByYear={periods.monthsByYear} />
           {error && <div className="rounded bg-red-900/60 px-3 py-2 text-sm text-red-100">{error}</div>}
         </aside>
-      )}
+      </div>
 
-      {!sidebarOpen && (
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="fixed top-4 left-4 z-30 rounded bg-black/50 p-2 text-white/80 hover:bg-black/70 hover:text-white"
-          title="Show menu"
-        >
-          <HamburgerIcon />
-        </button>
-      )}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className={`fixed top-4 left-4 z-30 rounded bg-black/50 p-2 text-white/80 transition-opacity duration-200 hover:bg-black/70 hover:text-white ${
+          sidebarOpen ? 'pointer-events-none opacity-0' : 'opacity-100'
+        }`}
+        title="Show menu"
+      >
+        <HamburgerIcon />
+      </button>
 
       <div className="relative flex-1">
         {viewMode === 'single' ? (
