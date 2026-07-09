@@ -95,6 +95,9 @@ export function buildChoroplethLayers({ idPrefix, geoData, counts, pickable = fa
       getPosition: (d) => d.position,
       getText: (d) => d.text,
       getSize: 13,
+      // 'pixels' (deck.gl's default, made explicit here) keeps label size a
+      // constant screen size regardless of zoom level, matching the deck's look.
+      sizeUnits: 'pixels',
       getColor: (d) => d.color,
       updateTriggers: { getColor: counts },
       fontFamily: '"Segoe UI", system-ui, sans-serif',
