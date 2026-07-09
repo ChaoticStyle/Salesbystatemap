@@ -122,7 +122,7 @@ export function GalleryView({ geoData, countsByView, visibleViews, onToggleView 
             title="Jump to view"
           >
             {visibleDefs.map((v, i) => (
-              <option key={v.key} value={i} className="text-black">
+              <option key={v.key} value={i} className="bg-neutral-800 text-white">
                 {i + 1}. {v.label}
               </option>
             ))}
