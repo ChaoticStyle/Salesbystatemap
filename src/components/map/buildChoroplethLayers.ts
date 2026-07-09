@@ -18,11 +18,21 @@ function labelSizeForZoom(zoom: number): number {
   return Math.min(MAX_LABEL_SIZE, Math.max(MIN_LABEL_SIZE, BASE_LABEL_SIZE * scale));
 }
 
+// Hand-tuned screen-pixel nudges for states whose geographic centroid lands
+// somewhere awkward relative to their shape (e.g. Louisiana's centroid sits
+// high in the state, Florida's sits too far into the panhandle) -- applied
+// on top of the normal centroid position, in every view.
+const LABEL_PIXEL_OFFSETS: Record<string, [number, number]> = {
+  LA: [0, 15],
+  FL: [-15, 0],
+};
+
 interface LabelPoint {
   code: string;
   position: [number, number];
   text: string;
   color: [number, number, number, number];
+  pixelOffset: [number, number];
 }
 
 interface LeaderLine {
@@ -64,7 +74,8 @@ export function buildChoroplethLayers({ idPrefix, geoData, counts, zoom = DEFAUL
     // Offset (leader-line) labels sit on the dark page background, not the
     // state's own fill color, so they always stay white for readability.
     const color = offsetPosition ? ([255, 255, 255, 255] as [number, number, number, number]) : labelColorForFill(colorScale(count));
-    labelPoints.push({ code, position, text: String(count), color });
+    const pixelOffset = LABEL_PIXEL_OFFSETS[code] ?? [0, 0];
+    labelPoints.push({ code, position, text: String(count), color, pixelOffset });
     if (offsetPosition) leaderLines.push({ code, source: centroid, target: offsetPosition });
   }
 
@@ -108,6 +119,7 @@ export function buildChoroplethLayers({ idPrefix, geoData, counts, zoom = DEFAUL
       data: labelPoints,
       getPosition: (d) => d.position,
       getText: (d) => d.text,
+      getPixelOffset: (d) => d.pixelOffset,
       getSize: labelSizeForZoom(zoom),
       // Sized in screen pixels (not geographic 'meters'), but we recompute the
       // pixel value ourselves as zoom changes so labels grow with the map

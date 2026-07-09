@@ -115,9 +115,18 @@ export function GalleryView({ geoData, countsByView, visibleViews, onToggleView 
           >
             <ChevronIcon direction="up" />
           </button>
-          <div className="pointer-events-none rounded-full bg-black/60 px-2 py-1 text-center text-xs text-white/70">
-            {currentIndex + 1}/{visibleDefs.length}
-          </div>
+          <select
+            value={currentIndex}
+            onChange={(e) => goToIndex(Number(e.target.value))}
+            className="pointer-events-auto rounded-md border border-white/10 bg-black/80 px-2 py-1 text-center text-xs text-white shadow-lg"
+            title="Jump to view"
+          >
+            {visibleDefs.map((v, i) => (
+              <option key={v.key} value={i} className="text-black">
+                {i + 1}. {v.label}
+              </option>
+            ))}
+          </select>
           <button
             onClick={() => goToIndex(currentIndex + 1)}
             disabled={currentIndex === visibleDefs.length - 1}
