@@ -2,8 +2,21 @@ import { GeoJsonLayer, TextLayer, LineLayer } from '@deck.gl/layers';
 import { geoCentroid } from 'd3-geo';
 import { buildColorScale, labelColorForFill } from './colorScale';
 import { SMALL_REGION_LABEL_POSITIONS } from './smallRegionOffsets';
+import { DEFAULT_MAP_ZOOM } from './constants';
 import type { StateCountRow } from '@/lib/queries';
 import type { StateGeoFeature } from './types';
+
+const BASE_LABEL_SIZE = 13;
+// Labels grow with zoom (so they don't look relatively tinier as the map
+// enlarges) but are clamped so they never become illegibly small when
+// zoomed out or comically large when zoomed in close.
+const MIN_LABEL_SIZE = 10;
+const MAX_LABEL_SIZE = 32;
+
+function labelSizeForZoom(zoom: number): number {
+  const scale = Math.pow(2, zoom - DEFAULT_MAP_ZOOM);
+  return Math.min(MAX_LABEL_SIZE, Math.max(MIN_LABEL_SIZE, BASE_LABEL_SIZE * scale));
+}
 
 interface LabelPoint {
   code: string;
@@ -22,12 +35,13 @@ export interface BuildLayersOptions {
   idPrefix: string;
   geoData: { type: 'FeatureCollection'; features: StateGeoFeature[] } | null;
   counts: StateCountRow[];
+  zoom?: number;
   pickable?: boolean;
   onClick?: (code: string) => void;
   onHover?: (info: { x: number; y: number; code: string; name: string; count: number } | null) => void;
 }
 
-export function buildChoroplethLayers({ idPrefix, geoData, counts, pickable = false, onClick, onHover }: BuildLayersOptions) {
+export function buildChoroplethLayers({ idPrefix, geoData, counts, zoom = DEFAULT_MAP_ZOOM, pickable = false, onClick, onHover }: BuildLayersOptions) {
   if (!geoData) return [];
 
   const countByCode = new Map<string, number>();
@@ -94,9 +108,11 @@ export function buildChoroplethLayers({ idPrefix, geoData, counts, pickable = fa
       data: labelPoints,
       getPosition: (d) => d.position,
       getText: (d) => d.text,
-      getSize: 13,
-      // 'pixels' (deck.gl's default, made explicit here) keeps label size a
-      // constant screen size regardless of zoom level, matching the deck's look.
+      getSize: labelSizeForZoom(zoom),
+      // Sized in screen pixels (not geographic 'meters'), but we recompute the
+      // pixel value ourselves as zoom changes so labels grow with the map
+      // instead of staying visually fixed -- clamped so they never become
+      // illegible when zoomed out or oversized when zoomed in.
       sizeUnits: 'pixels',
       getColor: (d) => d.color,
       updateTriggers: { getColor: counts },

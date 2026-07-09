@@ -5,13 +5,14 @@ import DeckGL from '@deck.gl/react';
 import { MapView } from '@deck.gl/core';
 import { PAGE_BACKGROUND_COLOR } from './colorScale';
 import { buildChoroplethLayers } from './buildChoroplethLayers';
+import { DEFAULT_MAP_ZOOM } from './constants';
 import type { StateCountRow } from '@/lib/queries';
 import type { StateGeoFeature } from './types';
 
 const DEFAULT_VIEW_STATE = {
   longitude: -95,
   latitude: 38,
-  zoom: 2.9,
+  zoom: DEFAULT_MAP_ZOOM,
   pitch: 0,
   bearing: 0,
 };
@@ -27,11 +28,13 @@ interface DeckMapProps {
 
 export function DeckMap({ idPrefix = 'main', geoData, counts, onStateClick, initialViewState, interactive = true }: DeckMapProps) {
   const [hoverInfo, setHoverInfo] = useState<{ x: number; y: number; code: string; name: string; count: number } | null>(null);
+  const [zoom, setZoom] = useState(initialViewState?.zoom ?? DEFAULT_VIEW_STATE.zoom);
 
   const layers = buildChoroplethLayers({
     idPrefix,
     geoData,
     counts,
+    zoom,
     pickable: interactive,
     onClick: interactive ? onStateClick : undefined,
     onHover: interactive ? setHoverInfo : undefined,
@@ -44,6 +47,7 @@ export function DeckMap({ idPrefix = 'main', geoData, counts, onStateClick, init
         controller={interactive}
         views={new MapView({ repeat: false })}
         layers={layers}
+        onViewStateChange={({ viewState }) => setZoom((viewState as { zoom: number }).zoom)}
       />
       {hoverInfo && (
         <div

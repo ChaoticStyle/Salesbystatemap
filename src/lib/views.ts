@@ -3,7 +3,7 @@ import type { ParsedDeal, ViewKey } from '@/types/domain';
 export interface ViewDef {
   key: ViewKey;
   label: string;
-  group: 'overall' | 'dealer';
+  group: 'overall' | 'byType' | 'dealer';
   matches: (deal: ParsedDeal) => boolean;
 }
 
@@ -11,20 +11,11 @@ const DEALER_VIEW_CODES = ['ABB', 'BAY', 'CLE', 'HEF', 'HUN', 'HAT', 'TUP', 'LFT
 
 export const VIEW_DEFS: ViewDef[] = [
   { key: 'ALL', label: 'All Sales', group: 'overall', matches: () => true },
-  { key: 'MOTORIZED', label: 'Motorized', group: 'overall', matches: (d) => d.vehicleClass === 'motorized' },
-  { key: 'TOWABLES', label: 'Towables', group: 'overall', matches: (d) => d.vehicleClass === 'towable' },
-  {
-    key: 'HMD_MOTORIZED',
-    label: 'HMD Motorized',
-    group: 'overall',
-    matches: (d) => d.dealerCode === 'HMD' && d.vehicleClass === 'motorized',
-  },
-  {
-    key: 'HMD_TOWABLES',
-    label: 'HMD Towables',
-    group: 'overall',
-    matches: (d) => d.dealerCode === 'HMD' && d.vehicleClass === 'towable',
-  },
+  { key: 'MOTORIZED', label: 'All Motorized', group: 'byType', matches: (d) => d.vehicleClass === 'motorized' },
+  { key: 'TOWABLES', label: 'All Towables', group: 'byType', matches: (d) => d.vehicleClass === 'towable' },
+  { key: 'HMD_COMBINED', label: 'HMD Combined', group: 'dealer', matches: (d) => d.dealerCode === 'HMD' },
+  { key: 'HMD_MOTORIZED', label: 'HMD MOTOR', group: 'dealer', matches: (d) => d.dealerCode === 'HMD' && d.vehicleClass === 'motorized' },
+  { key: 'HMD_TOWABLES', label: 'HMD TOW', group: 'dealer', matches: (d) => d.dealerCode === 'HMD' && d.vehicleClass === 'towable' },
   ...DEALER_VIEW_CODES.map(
     (code): ViewDef => ({
       key: `DEALER_${code}` as ViewKey,

@@ -34,6 +34,7 @@ export type ViewKey =
   | 'ALL'
   | 'MOTORIZED'
   | 'TOWABLES'
+  | 'HMD_COMBINED'
   | 'HMD_MOTORIZED'
   | 'HMD_TOWABLES'
   | 'DEALER_ABB'

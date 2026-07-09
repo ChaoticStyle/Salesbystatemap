@@ -10,12 +10,20 @@ interface ViewSelectorProps {
 
 export function ViewSelector({ value, onChange }: ViewSelectorProps) {
   const overall = VIEW_DEFS.filter((v) => v.group === 'overall');
+  const byType = VIEW_DEFS.filter((v) => v.group === 'byType');
   const dealer = VIEW_DEFS.filter((v) => v.group === 'dealer');
 
   return (
     <div className="flex flex-col gap-4">
       <Section title="Overall">
         {overall.map((v) => (
+          <OptionButton key={v.key} active={value === v.key} onClick={() => onChange(v.key)}>
+            {v.label}
+          </OptionButton>
+        ))}
+      </Section>
+      <Section title="By Type">
+        {byType.map((v) => (
           <OptionButton key={v.key} active={value === v.key} onClick={() => onChange(v.key)}>
             {v.label}
           </OptionButton>
